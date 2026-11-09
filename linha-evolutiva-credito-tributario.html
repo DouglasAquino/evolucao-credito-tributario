@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linha Evolutiva do Crédito Tributário</title>
+<style>
+:root{
+  --bg:#f6f4ee;--card:#fff;--ink:#1b2433;--muted:#5b6678;--line:#d9d4c6;
+  --accent:#b5832a;--soft:#f6ecd5;--info:#dce8f6;--warn:#fbe9c8;--ok:#dcf1e4;
+  --shadow:0 6px 24px rgba(20,38,74,.09);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0e1524;--card:#17213a;--ink:#e8ecf5;--muted:#a4afc4;--line:#2b3757;
+    --accent:#e0b155;--soft:#2f2816;--info:#15304f;--warn:#3a2c12;--ok:#14352a;--shadow:0 6px 24px rgba(0,0,0,.4)}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .45em}
+p{margin:0 0 .8em}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+
+.hero{background:linear-gradient(135deg,#0f1f3f,#27427a 70%,#3b5a9a);color:#fff;padding:30px 0 26px}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.74rem;color:#e8c981;font-weight:700;margin-bottom:6px}
+.hero h1{font-size:clamp(1.6rem,5.5vw,2.6rem)}
+.hero p{max-width:64ch;color:#dbe4f5;margin:0}
+
+.controls{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.controls .wrap{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-top:10px;padding-bottom:10px}
+.btn{font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 16px;border-radius:999px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--soft)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.tg{display:flex;align-items:center;gap:6px;font-size:.88rem;font-weight:600;cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:var(--accent)}
+.pos{margin-left:auto;font-size:.82rem;color:var(--muted);font-weight:600}
+
+/* Timeline */
+.tl{position:relative;padding:26px 0 6px}
+.line{list-style:none;margin:0;padding:0}
+.rail{display:none}
+.line li{--c:#888;position:relative;display:grid;grid-template-columns:56px 1fr;column-gap:14px;padding-bottom:18px}
+.line li::before{content:"";position:absolute;left:25px;top:56px;bottom:0;width:6px;border-radius:3px;background:var(--line)}
+.line li.done::before{background:var(--c)}
+.line li:last-child::before{display:none}
+.node{all:unset;box-sizing:border-box;cursor:pointer;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font:700 1.15rem Georgia,serif;background:var(--card);border:3px solid var(--line);color:var(--muted);position:relative;z-index:1;transition:.25s}
+.node:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.line li.done .node{background:var(--c);border-color:var(--c);color:#fff}
+.line li.active .node{background:var(--card);border-color:var(--c);color:var(--c);transform:scale(1.12);box-shadow:0 0 0 7px color-mix(in srgb,var(--c) 22%,transparent)}
+.lab{align-self:center}
+.lab small{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:color-mix(in srgb,var(--c) 70%,var(--ink))}
+.lab b{display:block;font-size:1.05rem;font-family:Georgia,serif}
+.lab em{display:block;font-style:normal;font-size:.8rem;color:var(--muted)}
+#detail{grid-column:2;margin-top:12px}
+
+.slot{display:none}
+.bars{display:none}
+
+.detail{--c:#888;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:14px;box-shadow:var(--shadow);padding:18px 18px 14px;animation:pop .3s ease}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.detail .tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--c) 18%,var(--card));margin-bottom:8px}
+.detail h2{font-size:clamp(1.3rem,4vw,1.8rem)}
+.detail .sum{color:var(--muted)}
+.evs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;margin:6px 0 4px;scrollbar-width:thin}
+.ev{font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 12px;border-radius:999px;display:flex;gap:6px;align-items:center}
+.ev i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:.72rem}
+.ev.done i{background:var(--c);color:#fff}
+.ev.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,var(--card))}
+.ev.on i{background:var(--c);color:#fff}
+.evtext{border-left:4px solid var(--c);padding:6px 0 2px 14px;margin:8px 0 12px}
+.evtext h4{font-size:1.08rem}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--soft);border:1px solid var(--line);font-size:.76rem;font-weight:600;margin:2px 4px 2px 0}
+.call{border-left:4px solid var(--accent);background:var(--soft);padding:10px 14px;border-radius:8px;margin:10px 0;font-size:.94rem}
+.call.ex{border-color:#2a8f5b;background:var(--ok)}
+.call.pz{border-color:#c0392b;background:var(--warn)}
+.call b{display:block;margin-bottom:2px}
+.base{margin-top:8px;padding-top:10px;border-top:1px dashed var(--line);font-size:.86rem;color:var(--muted)}
+.stepbtns{display:flex;gap:8px;margin-top:10px}
+
+.legend{font-size:.82rem;color:var(--muted);padding:14px 0 0}
+footer{padding:22px 0 40px;color:var(--muted);font-size:.84rem}
+
+/* Desktop: linha horizontal */
+@media (min-width:820px){
+  .tl{padding-top:34px}
+  .rail{display:block;position:absolute;top:61px;left:10%;right:10%;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+  .rail i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b6fb6,#1f8a8a,#7a5cb8,#b5832a,#b23b3b);background-size:var(--bgw,100%) 100%;transition:width .6s ease}
+  .line{display:grid;grid-template-columns:repeat(5,1fr)}
+  .line li{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 6px}
+  .line li::before{display:none}
+  .node{width:64px;height:64px;font-size:1.3rem}
+  .lab{margin-top:12px}
+  .slot{display:block;margin-top:26px}
+  #detail{grid-column:auto;margin-top:0}
+  .bars{display:block;position:relative;height:0;margin-top:8px;overflow:hidden;transition:height .35s}
+  .bars.on{height:84px}
+  .bar{position:absolute;height:30px;border-radius:8px;font-size:.76rem;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1;padding:0 8px;color:#fff}
+  .bar.dec{left:30%;width:40%;top:0;background:#1f8a8a}
+  .bar.pre{left:70%;width:20%;top:38px;background:#b23b3b}
+  .bar::before{content:"";position:absolute;left:0;top:-8px;height:8px;width:2px;background:inherit}
+}
+@media (max-width:520px){.pos{margin-left:0;width:100%}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Direito Tributário · CTN e Lei 6.830/1980</div>
+    <h1>Linha Evolutiva do Crédito Tributário</h1>
+    <p>Da hipótese de incidência ao fato gerador, da obrigação ao crédito e à execução fiscal. Clique nas etapas, percorra os marcos de cada uma ou aperte Play para ver a evolução completa.</p>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="wrap">
+    <button type="button" class="btn ghost" id="prev">◀ Anterior</button>
+    <button type="button" class="btn" id="play">▶ Play</button>
+    <button type="button" class="btn ghost" id="next">Próximo ▶</button>
+    <label class="tg"><input type="checkbox" id="ex"> Exemplo (IPTU)</label>
+    <label class="tg"><input type="checkbox" id="pz"> Prazos</label>
+    <span class="pos" id="pos" aria-live="polite"></span>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="tl" id="tl">
+    <div class="rail" aria-hidden="true"><i id="fill"></i></div>
+    <ol class="line" id="line" aria-label="Linha evolutiva do crédito tributário"></ol>
+    <div class="bars" id="bars" aria-hidden="true">
+      <div class="bar dec">Decadência · direito de lançar (5 anos)</div>
+      <div class="bar pre">Prescrição · direito de cobrar (5 anos)</div>
+    </div>
+    <div class="slot" id="slot"></div>
+    <div class="detail" id="detail" aria-live="polite"></div>
+  </div>
+  <p class="legend">Dica: use as setas ← → do teclado para avançar e voltar. As datas do exemplo são ilustrativas.</p>
+  <footer>Material didático de apoio ao estudo; não substitui a leitura da legislação e da jurisprudência atualizadas. Referências: CF/88, CTN (Lei 5.172/1966) e Lei de Execução Fiscal (Lei 6.830/1980).</footer>
+</main>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+
+var ST=[
+{c:'#3b6fb6',plane:'Plano abstrato',short:'Hipótese de incidência',sub:'a lei prevê',exSub:'Lei municipal',
+ title:'Hipótese de Incidência',
+ sum:'A lei descreve, de forma geral e abstrata, a situação que, se ocorrer, fará nascer o dever de pagar tributo. Ainda não há devedor nem dívida: só uma norma.',
+ base:['CF, art. 150, I','CTN, art. 97','CTN, art. 114'],
+ ex:'A lei municipal estabelece que quem for proprietário, titular do domínio útil ou possuidor de imóvel urbano deve pagar IPTU ao Município (CTN, art. 32). Nada é devido por ninguém ainda.',
+ pz:null,
+ ev:[
+  {t:'Competência',d:'A Constituição reparte entre União, Estados, DF e Municípios o poder de instituir cada tributo (CF, arts. 145 e 153 a 156). O IPTU, por exemplo, é de competência municipal.',b:['CF, arts. 145 e 153–156']},
+  {t:'Lei institui',d:'Só a lei pode instituir o tributo e definir o fato gerador, o sujeito passivo, a base de cálculo e a alíquota (legalidade tributária).',b:['CF, art. 150, I','CTN, art. 97']},
+  {t:'Aspectos',d:'A hipótese tem cinco aspectos: material (o quê), espacial (onde), temporal (quando), pessoal (quem) e quantitativo (quanto: base de cálculo e alíquota).',b:['Regra-matriz de incidência']},
+  {t:'Vigência',d:'A lei nova não retroage e, em regra, só produz efeitos no exercício seguinte e após 90 dias de sua publicação (irretroatividade, anterioridade anual e nonagesimal).',b:['CF, art. 150, III']}
+ ]},
+{c:'#1f8a8a',plane:'Plano concreto',short:'Fato gerador',sub:'o fato ocorre',exSub:'01/01/2026',
+ title:'Fato Gerador',
+ sum:'Quando um fato real se encaixa na descrição da lei (subsunção), a norma incide: o tributo deixa de ser possibilidade e passa a ser um acontecimento jurídico.',
+ base:['CTN, arts. 116 a 118','CTN, art. 144'],
+ ex:'Em 01/01/2026, Ana é proprietária de um apartamento na zona urbana. O fato real coincide com a hipótese legal.',
+ pz:'Nos tributos por homologação com pagamento antecipado, o fato gerador é o marco inicial da decadência (CTN, art. 150, §4º).',
+ ev:[
+  {t:'O fato ocorre',d:'Um acontecimento do mundo real (propriedade, venda de mercadoria, prestação de serviço) passa a existir. Os sujeitos agora são determinados.',b:['CTN, art. 114']},
+  {t:'Subsunção',d:'O fato se encaixa exatamente na moldura da hipótese de incidência. A passagem do abstrato ao concreto é a subsunção.',b:['Doutrina']},
+  {t:'Momento',d:'Considera-se ocorrido o fato gerador: na situação de fato, quando se verificam as circunstâncias materiais necessárias aos seus efeitos; na situação jurídica, quando esteja definitivamente constituída.',b:['CTN, art. 116']},
+  {t:'Lei aplicável',d:'O lançamento se reporta à data do fato gerador e aplica a lei então vigente. A definição do fato gerador abstrai a validade dos atos praticados (natura non olet).',b:['CTN, arts. 118 e 144']}
+ ]},
+{c:'#7a5cb8',plane:'Relação jurídica',short:'Obrigação tributária',sub:'o vínculo nasce',exSub:'nasce em 01/01/2026',
+ title:'Obrigação Tributária',
+ sum:'Ocorrido o fato gerador, nasce por força da lei o vínculo entre o ente tributante e o contribuinte. Ainda não há valor apurado nem exigibilidade.',
+ base:['CTN, art. 113','CTN, arts. 119 e 121'],
+ ex:'Ana (sujeito passivo, contribuinte) passa a dever ao Município (sujeito ativo) o IPTU do exercício. O valor ainda não foi apurado.',
+ pz:null,
+ ev:[
+  {t:'Nasce ex lege',d:'A obrigação principal surge com a ocorrência do fato gerador, da lei e não da vontade das partes. Ela tem por objeto pagar tributo ou penalidade pecuniária.',b:['CTN, art. 113, §1º']},
+  {t:'Sujeitos',d:'Sujeito ativo é a pessoa jurídica de direito público titular da competência para exigir o tributo. Sujeito passivo é o contribuinte (relação pessoal e direta com o fato gerador) ou o responsável (por disposição expressa de lei).',b:['CTN, arts. 119 e 121']},
+  {t:'Acessórias',d:'Paralelamente, existem obrigações de fazer ou não fazer no interesse da fiscalização (emitir nota, entregar declaração). Descumpri-las gera multa, que se converte em obrigação principal.',b:['CTN, art. 113, §§2º e 3º']},
+  {t:'Ainda inexigível',d:'A obrigação existe, mas não pode ser cobrada: falta verificar o fato, calcular o valor e identificar formalmente o devedor. Isso é tarefa do lançamento.',b:['CTN, art. 142']}
+ ]},
+{c:'#b5832a',plane:'Constituição do crédito',short:'Crédito tributário',sub:'o valor é fixado',exSub:'venc. 10/04/2026',
+ title:'Crédito Tributário',
+ sum:'Pelo lançamento, a autoridade verifica o fato, calcula o valor e identifica o devedor. A obrigação vira crédito: algo líquido e exigível.',
+ base:['CTN, arts. 139 a 151','CTN, arts. 156 e 173'],
+ ex:'Em fevereiro de 2026, a Prefeitura apura valor venal × alíquota e envia o carnê ao endereço de Ana (notificação, Súmula 397/STJ), com vencimento em 10/04/2026. Sem pagamento nem impugnação, a constituição se torna definitiva.',
+ pz:'Decadência: 5 anos para lançar (art. 173, I, ou art. 150, §4º). Prescrição: começa na constituição definitiva do crédito (art. 174).',
+ ev:[
+  {t:'Lançamento',d:'Procedimento administrativo privativo da autoridade que constitui o crédito: verifica o fato gerador, determina a matéria tributável, calcula o tributo, identifica o sujeito passivo e propõe a penalidade. Pode ser de ofício, por declaração ou por homologação.',b:['CTN, arts. 142, 147, 149 e 150']},
+  {t:'Notificação',d:'O sujeito passivo é notificado do lançamento. No IPTU, o envio do carnê ao endereço do contribuinte vale como notificação. Se o débito for declarado pelo próprio contribuinte, a declaração constitui o crédito.',b:['CTN, art. 145','Súmulas 397 e 436/STJ']},
+  {t:'Vencimento',d:'Chegada a data de vencimento, o crédito se torna exigível. O pagamento extingue o crédito e encerra a linha; o inadimplemento a faz avançar.',b:['CTN, art. 156, I']},
+  {t:'Suspensão',d:'A exigibilidade pode ser suspensa por moratória, depósito integral, recursos administrativos, liminares judiciais e parcelamento. O crédito continua existindo, mas não pode ser cobrado.',b:['CTN, art. 151']},
+  {t:'Constituição definitiva',d:'Esgotada a via administrativa, ou escoado o prazo sem impugnação, a constituição do crédito se torna definitiva. É o marco inicial da prescrição.',b:['CTN, art. 174']}
+ ]},
+{c:'#b23b3b',plane:'Cobrança judicial',short:'Execução fiscal',sub:'o Fisco cobra',exSub:'após inadimplência',
+ title:'Execução Fiscal',
+ sum:'O crédito definitivamente constituído e não pago é inscrito em dívida ativa. A Certidão de Dívida Ativa (CDA) instrui a execução fiscal, regida pela Lei 6.830/1980.',
+ base:['CTN, arts. 201 a 204','Lei 6.830/1980'],
+ ex:'Ana não paga o carnê. A Fazenda inscreve o débito em dívida ativa, emite a CDA e ajuíza a execução. O despacho que ordena a citação interrompe a prescrição; Ana tem 5 dias para pagar ou garantir a execução.',
+ pz:'Prescrição: 5 anos da constituição definitiva, interrompida pelo despacho que ordena a citação (art. 174, parágrafo único, I). Intercorrente: 1 ano de suspensão e mais 5 anos (LEF, art. 40; Súmula 314/STJ).',
+ ev:[
+  {t:'Dívida ativa',d:'Esgotado o prazo de pagamento, o crédito é inscrito na repartição competente, em ato de controle de legalidade.',b:['CTN, art. 201','LEF, art. 2º']},
+  {t:'CDA',d:'A Certidão de Dívida Ativa é título executivo extrajudicial, com presunção relativa de certeza e liquidez, que pode ser afastada por prova inequívoca.',b:['CTN, arts. 202 e 204','CPC, art. 784, IX']},
+  {t:'Ajuizamento',d:'A petição inicial é instruída com a CDA. O despacho do juiz que ordena a citação interrompe a prescrição.',b:['LEF, arts. 6º e 7º','CTN, art. 174, I']},
+  {t:'Citação',d:'O executado é citado, em regra por correio, e tem 5 dias para pagar a dívida ou garantir a execução.',b:['LEF, arts. 8º e 9º']},
+  {t:'Penhora',d:'Sem pagamento nem garantia, buscam-se bens do executado (inclusive por meios eletrônicos), seguindo a ordem do art. 11 da LEF.',b:['LEF, arts. 10 e 11']},
+  {t:'Embargos',d:'Com a execução garantida, o executado tem 30 dias para embargar. Em regra os embargos não suspendem a execução, salvo pedido e requisitos do CPC (art. 919, §1º).',b:['LEF, art. 16','STJ, Tema 526']},
+  {t:'Expropriação',d:'Os bens penhorados são adjudicados ou levados a leilão, e o produto abate a dívida.',b:['LEF, arts. 19 e 23']},
+  {t:'Extinção',d:'O crédito se extingue por pagamento, decisão favorável transitada em julgado, remissão ou prescrição, inclusive a intercorrente quando não há devedor ou bens (suspensão de 1 ano e depois 5 anos).',b:['CTN, art. 156','LEF, art. 40','Súmula 314/STJ']}
+ ]}
+];
+
+var S={s:0,e:0,playing:false,timer:null};
+var mq=window.matchMedia('(max-width:819px)');
+var line=$('#line'),detail=$('#detail'),slot=$('#slot');
+
+function place(){
+  var li=line.querySelector('li.active');
+  if(mq.matches&&li){li.appendChild(detail)}else{slot.appendChild(detail)}
+}
+function renderLine(){
+  var ex=$('#ex').checked;
+  slot.appendChild(detail);
+  line.innerHTML='';
+  ST.forEach(function(st,i){
+    var li=document.createElement('li');
+    li.className=(i<S.s?'done':'')+(i===S.s?' active':'');
+    li.style.setProperty('--c',st.c);
+    li.innerHTML='<button type="button" class="node" aria-label="Etapa '+(i+1)+': '+st.title+'"'+(i===S.s?' aria-current="step"':'')+'>'+(i+1)+'</button>'+
+      '<div class="lab"><small>'+st.plane+'</small><b>'+st.short+'</b><em>'+(ex?st.exSub:st.sub)+'</em></div>';
+    li.querySelector('button').addEventListener('click',function(){stop();S.s=i;S.e=0;update(true)});
+    line.appendChild(li);
+  });
+  var n=ST.length,len=ST[S.s].ev.length;
+  var pct=Math.min(100,(S.s+(len>1?S.e/len:0))/(n-1)*100);
+  $('#fill').style.width=pct+'%';
+  $('#fill').style.setProperty('--bgw',($('#fill').parentNode.offsetWidth||800)+'px');
+}
+function renderDetail(){
+  var st=ST[S.s],ex=$('#ex').checked,pz=$('#pz').checked;
+  detail.style.setProperty('--c',st.c);
+  var evs=st.ev.map(function(v,i){
+    return '<button type="button" class="ev'+(i===S.e?' on':(i<S.e?' done':''))+'" data-i="'+i+'"><i>'+(i<S.e?'✓':(i+1))+'</i>'+v.t+'</button>';
+  }).join('');
+  var v=st.ev[S.e];
+  var chips=v.b.map(function(b){return '<span class="chip">'+b+'</span>'}).join('');
+  var base=st.base.map(function(b){return '<span class="chip">'+b+'</span>'}).join('');
+  detail.innerHTML=
+    '<span class="tag">Etapa '+(S.s+1)+' de '+ST.length+' · '+st.plane+'</span>'+
+    '<h2>'+st.title+'</h2><p class="sum">'+st.sum+'</p>'+
+    '<div class="evs" role="group" aria-label="Marcos da etapa">'+evs+'</div>'+
+    '<div class="evtext"><h4>'+(S.e+1)+'. '+v.t+'</h4><p>'+v.d+'</p><div>'+chips+'</div></div>'+
+    (ex?'<div class="call ex"><b>Exemplo prático · IPTU (datas ilustrativas)</b>'+st.ex+'</div>':'')+
+    (pz&&st.pz?'<div class="call pz"><b>⏱ Relógio dos prazos</b>'+st.pz+'</div>':'')+
+    '<div class="base"><strong>Base legal da etapa:</strong> '+base+'</div>';
+  Array.prototype.forEach.call(detail.querySelectorAll('.ev'),function(b){
+    b.addEventListener('click',function(){stop();S.e=Number(b.getAttribute('data-i'));update(false)});
+  });
+}
+function renderPos(){
+  var st=ST[S.s];
+  $('#pos').textContent='Etapa '+(S.s+1)+'/'+ST.length+' · Marco '+(S.e+1)+'/'+st.ev.length;
+  $('#prev').disabled=(S.s===0&&S.e===0);
+  var last=(S.s===ST.length-1&&S.e===st.ev.length-1);
+  $('#next').disabled=last;
+}
+function update(scroll){
+  renderLine();renderDetail();place();renderPos();
+  $('#bars').className='bars'+($('#pz').checked?' on':'');
+  if(scroll&&mq.matches){var li=line.querySelector('li.active');if(li)li.scrollIntoView({behavior:'smooth',block:'start'})}
+}
+function next(){
+  var st=ST[S.s];
+  if(S.e<st.ev.length-1){S.e++}
+  else if(S.s<ST.length-1){S.s++;S.e=0}
+  else{stop();return false}
+  update(false);return true;
+}
+function prev(){
+  if(S.e>0){S.e--}
+  else if(S.s>0){S.s--;S.e=ST[S.s].ev.length-1}
+  update(false);
+}
+function stop(){
+  S.playing=false;clearInterval(S.timer);S.timer=null;$('#play').textContent='▶ Play';
+}
+function play(){
+  if(S.playing){stop();return}
+  if(S.s===ST.length-1&&S.e===ST[S.s].ev.length-1){S.s=0;S.e=0;update(true)}
+  S.playing=true;$('#play').textContent='❚❚ Pausar';
+  S.timer=setInterval(function(){if(!next())stop()},3600);
+}
+
+$('#prev').addEventListener('click',function(){stop();prev()});
+$('#next').addEventListener('click',function(){stop();next()});
+$('#play').addEventListener('click',play);
+$('#ex').addEventListener('change',function(){update(false)});
+$('#pz').addEventListener('change',function(){update(false)});
+document.addEventListener('keydown',function(e){
+  var t=e.target&&e.target.tagName;
+  if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;
+  if(e.key==='ArrowRight'){stop();next()}
+  else if(e.key==='ArrowLeft'){stop();prev()}
+});
+if(mq.addEventListener){mq.addEventListener('change',function(){update(false)})}
+window.addEventListener('resize',function(){var f=$('#fill');f.style.setProperty('--bgw',(f.parentNode.offsetWidth||800)+'px')});
+update(false);
+})();
+</script>
+</body>
+</html>
